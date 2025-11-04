@@ -1,22 +1,15 @@
-import Phaser from 'phaser';
+import { GameHost } from '@SCOPE/pwa-game-2d-framework';
 import { BootScene } from './scenes/BootScene';
 import { MenuScene } from './scenes/MenuScene';
-import { GameScene } from './scenes/GameScene';
+import { PlayScene } from './scenes/PlayScene';
+import { PauseScene } from './scenes/PauseScene';
 import { GameOverScene } from './scenes/GameOverScene';
 
-// Example: If your framework exposes helpers, you can import them like:
-// import { BoardFitter } from '@SCOPE/pwa-game-2d-framework';
-
-const config: Phaser.Types.Core.GameConfig = {
-  type: Phaser.AUTO,
-  parent: 'app',
+/** Launch with sensible defaults (resize mode, pixelArt, etc.). */
+GameHost.launch('app', [BootScene, MenuScene, PlayScene, PauseScene, GameOverScene], {
   width: 800,
   height: 600,
-  backgroundColor: '#000000',
-  physics: {
-    default: 'arcade',
-  },
-  scene: [BootScene, MenuScene, GameScene, GameOverScene],
-};
-
-export const game = new Phaser.Game(config);
+  backgroundColor: 0x000000,
+  scaleMode: 'resize', // or 'fit' / 'cover'
+  physics: false,      // set to { system: 'arcade' } or { system: 'matter' } if needed
+});

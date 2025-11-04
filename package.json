@@ -5,9 +5,11 @@
   "scripts": {
     "build": "pnpm -r --filter ./packages/framework run build",
     "publish:framework": "pnpm -r --filter ./packages/framework run publish:gh",
-    "clean": "pnpm -r exec rimraf dist coverage .vite .turbo '*.tsbuildinfo' && rimraf node_modules .pnpm-store '**/.DS_Store'",
-    "clean:deep": "pnpm run clean && rimraf pnpm-lock.yaml",
-    "clean:templates": "pnpm -r --filter './packages/templates/*' exec rimraf node_modules dist .vite .turbo"
+    "clean:packages": "rimraf -g \"packages/**/node_modules\" \"packages/**/dist\" \"packages/**/coverage\" \"packages/**/.vite\" \"packages/**/.turbo\" \"packages/**/**/*.tsbuildinfo\"",
+    "clean": "pnpm -r exec rimraf node_modules dist coverage .vite .turbo \"**/*.tsbuildinfo\" && rimraf -g node_modules .pnpm-store \"digest*.*\" \"./digest*.*\"",
+    "clean:all": "pnpm run clean:packages && pnpm run clean",
+    "clean:deep": "pnpm run clean:all && rimraf pnpm-lock.yaml && pnpm store prune",
+    "scaffold:local": "node scripts/scaffold-local.cjs"
   },
   "pnpm": {
     "overrides": {

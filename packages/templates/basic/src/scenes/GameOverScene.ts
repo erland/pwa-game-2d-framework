@@ -1,12 +1,7 @@
-import Phaser from 'phaser';
+import { BaseGameOverScene } from '@SCOPE/pwa-game-2d-framework';
 
-export class GameOverScene extends Phaser.Scene {
-  constructor() {
-    super('gameover');
-  }
-  create() {
-    const { width, height } = this.scale;
-    this.add.text(width / 2, height / 2, 'GAME OVER', { color: '#f33' }).setOrigin(0.5);
-    this.input.once('pointerdown', () => this.scene.start('menu'));
-  }
+/** Minimal Game Over scene (pulsing hint + Enter/Space/Pointer to retry). */
+export class GameOverScene extends BaseGameOverScene {
+  protected getTitle(): string { return 'Game Over'; }
+  protected getNextSceneKey(): string { return 'Play'; } // retry jumps back into Play
 }
