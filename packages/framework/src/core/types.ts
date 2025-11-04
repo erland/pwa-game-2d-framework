@@ -1,6 +1,8 @@
 // src/framework/core/types.ts
 import type { RNG } from "./rng";
 import type { EventBus } from "./events";
+import type { Theme } from "../ui/Theme";
+import { SceneKeys } from "../scenes/sceneKeys";
 
 export type Vec2 = { x: number; y: number };
 
@@ -11,6 +13,8 @@ export type GameServices = {
   events?: EventBus;
   fixedStepHz?: number;  // default 60
   ui?: UIConfig;
+  theme?: Theme;
+  sceneKeys?: SceneKeys;
 };
 
 export type FixedStepConfig = {

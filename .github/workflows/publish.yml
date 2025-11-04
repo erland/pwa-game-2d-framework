@@ -1,0 +1,37 @@
+name: Publish framework to GitHub Packages
+
+on:
+  push:
+    tags:
+      - 'framework-v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@erland'
+
+      - name: Install
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Build framework
+        run: pnpm --filter ./packages/framework build
+
+      - name: Publish to GitHub Packages
+        working-directory: packages/framework
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish

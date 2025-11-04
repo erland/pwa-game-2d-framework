@@ -1,0 +1,12 @@
+node_modules
+digest*.*
+dist
+.DS_Store
+.env
+.env.local
+.pnpm-store
+*.log
+*.tgz
+coverage
+.vite
+.turbo
