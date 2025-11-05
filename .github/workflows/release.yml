@@ -12,6 +12,11 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write # for npm provenance
+    defaults:
+      run:
+        working-directory: packages/framework
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,46 +28,79 @@ jobs:
         with:
           version: 9
 
-      - name: Setup Node
+      - name: Setup Node (build env)
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          registry-url: https://registry.npmjs.org
-          scope: '@erland'
+          cache: pnpm
 
       - name: Install deps
         run: pnpm install --frozen-lockfile=false
 
       - name: Derive version from tag
         id: version
+        shell: bash
+        working-directory: .
         run: |
           TAG="${GITHUB_REF#refs/tags/}"
-          # supports tags like v1.2.3 or framework-v1.2.3
           VERSION="${TAG#framework-}"
           VERSION="${VERSION#v}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Bump framework package.json version (no git tag)
-        run: pnpm -r --filter ./packages/framework exec npm version --no-git-tag-version "$VERSION"
+        run: npm version --no-git-tag-version "$VERSION"
 
       - name: Build framework
-        run: pnpm -r --filter ./packages/framework run build
+        run: pnpm run build
 
       - name: Generate docs
-        run: pnpm -r --filter ./packages/framework run docs
+        run: pnpm run docs
+
+      - name: Pack dry-run (sanity)
+        run: npm pack --dry-run
+
+      # -------------------------------
+      # Publish to GitHub Packages
+      # -------------------------------
+      - name: Setup Node for GitHub Packages
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com
+          scope: '@erland' # scope must map to GHP registry
+
+      - name: Sanity (GHP)
+        run: |
+          echo "pkg name: $(node -p "require('./package.json').name")"
+          npm config get @erland:registry || true
+          npm config get registry
+          npm whoami || true
 
       - name: Publish to GitHub Packages
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          cd packages/framework
-          npm publish --registry=https://npm.pkg.github.com
+        run: npm publish
 
-      - name: Publish to npmjs (rename scope for npm)
+      # -------------------------------
+      # Publish to npmjs (rename scope)
+      # -------------------------------
+      - name: Setup Node for npmjs
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Rename package scope for npm
+        run: npm pkg set name=@erlandlindmark/pwa-game-2d-framework
+
+      - name: Sanity (npm)
+        run: |
+          echo "pkg name: $(node -p "require('./package.json').name")"
+          npm config get registry
+          npm whoami || true
+
+      - name: Publish to npmjs (with provenance)
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          cd packages/framework
-          npm pkg set name=@erlandlindmark/pwa-game-2d-framework
-          npm publish --access public --registry=https://registry.npmjs.org"
+        run: npm publish --access public --provenance
