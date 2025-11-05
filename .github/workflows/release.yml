@@ -12,7 +12,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-      id-token: write # for npm provenance
+      id-token: write   # for npm provenance
     defaults:
       run:
         working-directory: packages/framework
@@ -28,7 +28,8 @@ jobs:
         with:
           version: 9
 
-      - name: Setup Node (build env)
+      # Build env only (no registry mapping here)
+      - name: Setup Node (build)
         uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -68,7 +69,7 @@ jobs:
         with:
           node-version: 20
           registry-url: https://npm.pkg.github.com
-          scope: '@erland' # scope must map to GHP registry
+          scope: '@erland'   # map this scope to GHP
 
       - name: Sanity (GHP)
         run: |
@@ -90,9 +91,18 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org
+          # (no scope here; we will set registry explicitly below)
 
       - name: Rename package scope for npm
         run: npm pkg set name=@erlandlindmark/pwa-game-2d-framework
+
+      # harden registry before publish to avoid any leftover .npmrc mappings
+      - name: Force npmjs registry (clear any per-scope overrides)
+        run: |
+          npm config set registry https://registry.npmjs.org
+          npm config delete @erland:registry || true
+          npm config delete @erlandlindmark:registry || true
+          npm config list -l | sed -n '1,80p'
 
       - name: Sanity (npm)
         run: |
@@ -103,4 +113,4 @@ jobs:
       - name: Publish to npmjs (with provenance)
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --access public --provenance
+        run: npm publish --access public --provenance --registry https://registry.npmjs.org
