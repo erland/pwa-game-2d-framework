@@ -1,21 +1,16 @@
 {
-  "entryPoints": [
-    "src/index.ts"
-  ],
+  "entryPoints": ["src/index.ts"],
   "tsconfig": "tsconfig.json",
-  "plugin": [
-    "typedoc-plugin-markdown"
-  ],
-  "out": "docs",
+  "plugin": ["typedoc-plugin-markdown"],
+  "out": "docs/api",
   "readme": "none",
+
   "excludePrivate": true,
   "excludeInternal": true,
+
   "hideGenerator": true,
   "categorizeByGroup": true,
-  "includeVersion": true,
   "cleanOutputDir": true,
-  "sort": [
-    "visibility",
-    "source-order"
-  ]
+
+  "sort": ["visibility", "source-order"]
 }
