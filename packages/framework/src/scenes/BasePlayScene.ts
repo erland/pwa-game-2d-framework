@@ -2,6 +2,10 @@ import Phaser from "phaser";
 import { FixedStepper } from "../core/time";
 import { BaseInputController } from "../input/BaseInputController";
 
+/**
+ * Base scene with a fixed-step game loop and optional input controller.
+ * Subclass and implement your game-specific logic in {@link buildWorld}.
+ */
 export abstract class BasePlayScene extends Phaser.Scene {
   private stepper: FixedStepper;
   private inputCtrl?: BaseInputController;

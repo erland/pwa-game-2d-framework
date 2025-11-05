@@ -1,0 +1,68 @@
+name: Release framework
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+      - 'framework-v*.*.*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+          scope: '@erland'
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Derive version from tag
+        id: version
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          # supports tags like v1.2.3 or framework-v1.2.3
+          VERSION="${TAG#framework-}"
+          VERSION="${VERSION#v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Bump framework package.json version (no git tag)
+        run: pnpm -r --filter ./packages/framework exec npm version --no-git-tag-version "$VERSION"
+
+      - name: Build framework
+        run: pnpm -r --filter ./packages/framework run build
+
+      - name: Generate docs
+        run: pnpm -r --filter ./packages/framework run docs
+
+      - name: Publish to GitHub Packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd packages/framework
+          npm publish --registry=https://npm.pkg.github.com
+
+      - name: Publish to npmjs (rename scope for npm)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          cd packages/framework
+          npm pkg set name=@erlandlindmark/pwa-game-2d-framework
+          npm publish --access public --registry=https://registry.npmjs.org"

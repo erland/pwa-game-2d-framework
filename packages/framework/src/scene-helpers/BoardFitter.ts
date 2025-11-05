@@ -1,5 +1,10 @@
 import Phaser from "phaser";
 
+/**
+ * Options for {@link BoardFitter}.
+ * @property fitMode - `fit` = letterbox; `cover` = fill screen (may crop)
+ * @property integerZoom - Snap scale to integer factors when >= 1
+ */
 export type BoardFitterOptions = {
   fitMode?: "fit" | "cover";   // fit = letterbox, cover = fill screen (may crop)
   integerZoom?: boolean;       // snap scale to integer factors when >= 1
