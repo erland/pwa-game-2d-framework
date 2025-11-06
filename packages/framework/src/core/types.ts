@@ -2,7 +2,7 @@
 import type { RNG } from "./rng";
 import type { EventBus } from "./events";
 import type { Theme } from "../ui/Theme";
-import { SceneKeys } from "../scenes/sceneKeys";
+import type { SceneKeys } from "../scenes/sceneKeys";
 
 export type Vec2 = { x: number; y: number };
 

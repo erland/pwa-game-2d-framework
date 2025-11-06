@@ -1,9 +1,28 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "dist"
+    "outDir": "dist",
+
+    // ✅ Bundler-friendly ESM: no need to add .js to relative imports
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+
+    // DOM types (Phaser, canvas) + modern JS
+    "lib": ["ES2022", "DOM"],
+
+    // Interop & QoL
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+
+    // Keep import/export syntax as written (good for bundlers)
+    "verbatimModuleSyntax": true,
+
+    // Jest/Node types available in tests
+    "types": ["jest", "node"]
   },
-  "include": [
-    "src"
-  ]
+  // Source + local Phaser mock; tests live under src/**/__tests__/**
+  "include": ["src", "__mocks__/phaser.ts"]
 }

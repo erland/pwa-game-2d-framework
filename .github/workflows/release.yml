@@ -12,7 +12,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-      id-token: write   # for npm provenance
+      id-token: write   # required for npm Trusted Publishing (OIDC)
     defaults:
       run:
         working-directory: packages/framework
@@ -28,7 +28,7 @@ jobs:
         with:
           version: 9
 
-      # Build env only (no registry mapping here)
+      # Build env (no registry mapping here)
       - name: Setup Node (build)
         uses: actions/setup-node@v4
         with:
@@ -69,14 +69,7 @@ jobs:
         with:
           node-version: 20
           registry-url: https://npm.pkg.github.com
-          scope: '@erland'   # map this scope to GHP
-
-      - name: Sanity (GHP)
-        run: |
-          echo "pkg name: $(node -p "require('./package.json').name")"
-          npm config get @erland:registry || true
-          npm config get registry
-          npm whoami || true
+          scope: '@erland' # map this scope to GHP
 
       - name: Publish to GitHub Packages
         env:
@@ -84,33 +77,25 @@ jobs:
         run: npm publish
 
       # -------------------------------
-      # Publish to npmjs (rename scope)
+      # Publish to npmjs (Trusted Publishing, no NPM_TOKEN)
       # -------------------------------
       - name: Setup Node for npmjs
         uses: actions/setup-node@v4
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org
-          # (no scope here; we will set registry explicitly below)
 
+      # If you publish under a different npm scope, rename here
       - name: Rename package scope for npm
         run: npm pkg set name=@erlandlindmark/pwa-game-2d-framework
 
-      # harden registry before publish to avoid any leftover .npmrc mappings
-      - name: Force npmjs registry (clear any per-scope overrides)
+      # Harden registry to avoid any leftover per-scope mappings
+      - name: Force npmjs registry
         run: |
           npm config set registry https://registry.npmjs.org
           npm config delete @erland:registry || true
           npm config delete @erlandlindmark:registry || true
-          npm config list -l | sed -n '1,80p'
 
-      - name: Sanity (npm)
-        run: |
-          echo "pkg name: $(node -p "require('./package.json').name")"
-          npm config get registry
-          npm whoami || true
-
-      - name: Publish to npmjs (with provenance)
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish to npmjs (Trusted Publishing)
+        # NOTE: no NODE_AUTH_TOKEN here — uses OIDC + provenance
         run: npm publish --access public --provenance --registry https://registry.npmjs.org

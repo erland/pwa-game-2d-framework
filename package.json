@@ -9,7 +9,10 @@
     "clean": "pnpm -r exec rimraf node_modules dist coverage .vite .turbo \"**/*.tsbuildinfo\" && rimraf -g node_modules .pnpm-store \"digest*.*\" \"./digest*.*\"",
     "clean:all": "pnpm run clean:packages && pnpm run clean",
     "clean:deep": "pnpm run clean:all && rimraf pnpm-lock.yaml && pnpm store prune",
-    "scaffold:local": "node scripts/scaffold-local.cjs"
+    "scaffold:local": "node scripts/scaffold-local.cjs",
+    "test": "pnpm -r --filter ./packages/framework test",
+    "test:coverage": "pnpm -r --filter ./packages/framework test:coverage",
+    "typecheck": "pnpm -r --filter ./packages/framework typecheck"
   },
   "pnpm": {
     "overrides": {
