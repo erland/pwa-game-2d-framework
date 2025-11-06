@@ -84,36 +84,42 @@ export class DPadOverlay {
   private position() {
     if (!this.nodes) return;
     const { up, down, left, right } = this.nodes;
-
+  
     const inset = this.opts.safeAreaProvider!();
-    const cam = this.scene.cameras.main;
-    const w = cam.width;
-    const h = cam.height;
-    const margin = this.opts.gap;
-    const r = this.opts.radius;
-
-    // base anchor position
+    const w = this.scene.scale.width;
+    const h = this.scene.scale.height;
+  
+    const r = this.opts.radius;       // button radius
+    const gap = this.opts.gap;        // spacing between center and button centers
+    const offset = r + gap;           // center → each button center
+    const outer = Math.max(8, gap);   // keep at least a small edge margin
+  
+    // Half-extent from center to the outermost edge = (center-to-button-center) + button radius
+    // = (r + gap) + r = 2r + gap
+    const halfExtent = 2 * r + gap;
+  
+    // Choose a center point that's pulled in from the edges by halfExtent + outer margin
     let baseX = 0, baseY = 0;
     switch (this.opts.anchor) {
       case "bottom-right":
-        baseX = w - inset.right - margin;
-        baseY = h - inset.bottom - margin;
+        baseX = w - inset.right - outer - halfExtent;
+        baseY = h - inset.bottom - outer - halfExtent;
         break;
       case "bottom-left":
-        baseX = inset.left + margin;
-        baseY = h - inset.bottom - margin;
+        baseX = inset.left + outer + halfExtent;
+        baseY = h - inset.bottom - outer - halfExtent;
         break;
       case "bottom-center":
         baseX = w / 2;
-        baseY = h - inset.bottom - margin;
+        baseY = h - inset.bottom - outer - halfExtent;
         break;
     }
-
-    // arrange as a cross centered around base
-    up.setPosition(baseX, baseY - (r * 2 + margin));
-    down.setPosition(baseX, baseY + (r * 2 + margin));
-    left.setPosition(baseX - (r * 2 + margin), baseY);
-    right.setPosition(baseX + (r * 2 + margin), baseY);
+  
+    // Place buttons at ±offset from the center (not r*2 + gap)
+    up.setPosition(baseX, baseY - offset);
+    down.setPosition(baseX, baseY + offset);
+    left.setPosition(baseX - offset, baseY);
+    right.setPosition(baseX + offset, baseY);
   }
 
   destroy(): void {
