@@ -3,6 +3,7 @@ import { defaultSceneKeys, type SceneKeys } from "./sceneKeys";
 import { defaultTheme } from "../ui/defaultTheme";
 import type { Theme } from "../ui/Theme";
 import type { GameServices } from "../core/types";
+import { getServices } from "../core/getServices";
 
 /**
  * Generic Game Over scene:
@@ -18,12 +19,12 @@ export abstract class BaseGameOverScene extends Phaser.Scene {
   private hintTween?: Phaser.Tweens.Tween;
 
   protected getSceneKeys(): SceneKeys {
-    const services: any = this.game.registry.get("services");
+    const services = getServices(this.game);
     return (services && services.sceneKeys) || defaultSceneKeys;
   }
 
   protected getTheme(): Theme {
-    const services = this.game.registry.get("services") as GameServices | undefined;
+    const services = getServices(this.game) as GameServices | undefined;
     return services?.theme ?? defaultTheme;
   }
 

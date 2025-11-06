@@ -1,6 +1,7 @@
 // src/framework/scenes/BaseBootScene.ts
 import Phaser from "phaser";
 import { createDefaultServices } from "../core/services";
+import { getServices } from "../core/getServices";
 import { defaultSceneKeys, type SceneKeys } from "./sceneKeys";
 import type { GameServices } from "../core/types";
 
@@ -29,7 +30,7 @@ export abstract class BaseBootScene extends Phaser.Scene {
 
   /** Accessor for scene keys from the registry or defaults. */
   protected getSceneKeys(): SceneKeys {
-    const services: any = this.game.registry.get("services");
+    const services = getServices(this.game);
     return (services && services.sceneKeys) || defaultSceneKeys;
   }
 
@@ -41,7 +42,7 @@ export abstract class BaseBootScene extends Phaser.Scene {
   /** Build/merge services, configure scale, then go to menu. */
   public create(): void {
     // 1) Ensure services are present
-    const existing: any = this.game.registry.get("services");
+    const existing = getServices(this.game);
     const base: any = existing ?? createDefaultServices(undefined, this.getBootTheme(), this.getBootSceneKeys() as any);
     const overrides = this.getServiceOverrides() || {};
 

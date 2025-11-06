@@ -4,6 +4,7 @@ import { events, EVT } from "../core/events";
 import { defaultTheme } from "../ui/defaultTheme";
 import type { Theme } from "../ui/Theme";
 import type { GameServices } from "../core/types";
+import { getServices } from "../core/getServices";
 import { requestFullscreenIfPossible } from "../utils/fullscreen";
 
 export abstract class BaseMenuScene extends Phaser.Scene {
@@ -14,18 +15,18 @@ export abstract class BaseMenuScene extends Phaser.Scene {
   private onKeyStart?: (ev?: any) => void;
 
   protected getSceneKeys(): SceneKeys {
-    const services: any = this.game.registry.get("services");
+    const services = getServices(this.game);
     return (services && services.sceneKeys) || defaultSceneKeys;
   }
 
   protected getTheme(): Theme {
-    const services = this.game.registry.get("services") as GameServices | undefined;
+    const services = getServices(this.game) as GameServices | undefined;
     return services?.theme ?? defaultTheme;
   }
 
   /** Accessor for the optional UI config stored in services (untyped for safety). */
   protected getUiConfig(): { autoFullscreen?: boolean } {
-    const services: any = this.game.registry.get("services");
+    const services = getServices(this.game);
     return (services && services.ui) || {};
   }
 
