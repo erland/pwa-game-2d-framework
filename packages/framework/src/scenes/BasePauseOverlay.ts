@@ -3,17 +3,18 @@ import { defaultTheme } from "../ui/defaultTheme";
 import type { Theme } from "../ui/Theme";
 import { defaultSceneKeys, type SceneKeys } from "./sceneKeys";
 import type { GameServices } from "../core/types";
+import { getServices } from "../core/getServices";
 
 export abstract class BasePauseOverlay extends Phaser.Scene {
   constructor() { super("Pause"); }
 
   protected getSceneKeys(): SceneKeys {
-    const services = this.game.registry.get("services") as GameServices | undefined;
+    const services = getServices(this.game) as GameServices | undefined;
     return services?.sceneKeys ?? defaultSceneKeys;
   }
 
   protected getTheme(): Theme {
-    const services = this.game.registry.get("services") as GameServices | undefined;
+    const services = getServices(this.game) as GameServices | undefined;
     return services?.theme ?? defaultTheme;
   }
 
