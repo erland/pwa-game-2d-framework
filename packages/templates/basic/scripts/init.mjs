@@ -55,6 +55,10 @@
             text = text.replaceAll('@SCOPE/', `@${scope}/`);
             fs.writeFileSync(full, text);
           }
+          if (text.includes('@NAME')) {
+            text = text.replaceAll('@NAME', `${name}`);
+            fs.writeFileSync(full, text);
+          }
         }
       }
     }
