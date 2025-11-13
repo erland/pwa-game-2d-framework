@@ -15,10 +15,7 @@ export default defineConfig({
       devOptions: { enabled: true },
       // copy extra static assets from /public into dist and let Workbox precache them
       includeAssets: [
-        'tiles/pacman-tiles.png',
-        'audio/*.wav',
-        'sprites/*.png',
-        'favicon.ico'
+        'icons/apple-touch-icon-180x180.png'
       ],
       workbox: {
         // ensure audio/sprites/etc get precached
@@ -28,9 +25,9 @@ export default defineConfig({
       manifest: {
         name: 'My 2D Game',
         short_name: '2D Game',
-        start_url: '.',
-        scope: '.',
+        start_url: base,
         display: 'standalone',
+        orientation: 'portrait',
         background_color: '#000000',
         theme_color: '#000000',
         icons: [
@@ -44,4 +41,4 @@ export default defineConfig({
   ],
   server: { port: 5173, open: true },
   build: { sourcemap: true }
-})
+});
